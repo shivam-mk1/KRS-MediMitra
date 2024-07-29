@@ -83,68 +83,146 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final ScrollController _scrollController = ScrollController();
   final TextEditingController _textController = TextEditingController();
+
+  _scrollToBottom() {
+    _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+  }
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
     final medicalAssistant = Provider.of<MedicalAssistant>(context);
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.lightGreen,
-        title: const Text(
-          'MediMitra',
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: medicalAssistant.messages.length,
-              itemBuilder: (context, index) {
-                final message = medicalAssistant.messages[index];
-                return MessageBubble(
-                  text: message.text,
-                  isUserMessage: message.isUserMessage,
-                );
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
+    return ChangeNotifierProvider(
+      create: (context) => MedicalAssistant(),
+      child: Scaffold(
+        drawer: Drawer(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 40, 0, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: TextField(
-                    controller: _textController,
-                    decoration: InputDecoration(
-                      hintText: 'Type your question here...',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
+                const Row(
+                  children: [
+                    Image(
+                      image: AssetImage('assets/bot.png'),
+                      width: 50,
+                      height: 50,
                     ),
-                    onSubmitted: (text) {
-                      _sendMessage(text, medicalAssistant);
-                    },
-                  ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Text(
+                      'MediMitra',
+                      style: TextStyle(
+                          color: Colors.lightGreen,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w900),
+                    ),
+                    SizedBox(
+                      width: 30,
+                    ),
+                    Image(
+                      image: AssetImage('assets/KRS.jpg'),
+                      width: 55,
+                      height: 55,
+                    )
+                  ],
                 ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: () {
-                    _sendMessage(_textController.text, medicalAssistant);
+                const SizedBox(
+                  height: 30,
+                ),
+                InkWell(
+                  onTap: () {
+                    clearChatHistory(context);
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.lightGreen,
-                  ),
-                  child: const Text(
-                    'Send',
-                    style: TextStyle(color: Colors.white),
+                  child: Container(
+                    decoration: BoxDecoration(
+                        color: Colors.lightGreen,
+                        borderRadius: BorderRadius.circular(8)),
+                    width: 250,
+                    child: const Row(
+                      children: [
+                        Icon(
+                          Icons.add,
+                          color: Colors.white,
+                          size: 44,
+                        ),
+                        Text(
+                          'New Session',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-        ],
+        ),
+        appBar: AppBar(
+          backgroundColor: Colors.lightGreen,
+          title: const Text(
+            'MediMitra',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900),
+          ),
+          iconTheme: const IconThemeData(color: Colors.white),
+        ),
+        body: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                controller: _scrollController,
+                itemCount: medicalAssistant.messages.length,
+                itemBuilder: (context, index) {
+                  final message = medicalAssistant.messages[index];
+                  return MessageBubble(
+                    text: message.text,
+                    isUserMessage: message.isUserMessage,
+                  );
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _textController,
+                      decoration: InputDecoration(
+                        hintText: 'Type your question here...',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                      ),
+                      onSubmitted: (text) {
+                        _sendMessage(text, medicalAssistant);
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: () {
+                      _sendMessage(_textController.text, medicalAssistant);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.lightGreen,
+                    ),
+                    child: const Text(
+                      'Send',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -156,6 +234,11 @@ class _MyHomePageState extends State<MyHomePage> {
       medicalAssistant.sendMessage(text);
     }
   }
+
+  void clearChatHistory(BuildContext context) {
+    Provider.of<MedicalAssistant>(context, listen: false)
+        .clearChatHistory(context);
+  }
 }
 
 class MedicalAssistant extends ChangeNotifier {
@@ -163,6 +246,11 @@ class MedicalAssistant extends ChangeNotifier {
   late GenerativeModel _model;
   late ChatSession _chatSession;
   bool _isChatInitialized = false;
+  void clearChatHistory(context) {
+    messages.clear();
+    notifyListeners();
+    Navigator.pop(context);
+  }
 
   List<ChatMessage> get messages => _messages;
 
