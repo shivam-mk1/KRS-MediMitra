@@ -236,8 +236,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void clearChatHistory(BuildContext context) {
-    Provider.of<MedicalAssistant>(context, listen: false)
-        .clearChatHistory(context);
+    Provider.of<MedicalAssistant>(context, listen: false).clearChatHistory(context);
   }
 }
 
