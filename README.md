@@ -1,16 +1,24 @@
-# medimitra
+# MediMitra
 
-A new Flutter project.
+MediMitra is a personal medical assistant chatbot built using Flutter. It provides users with general health information and guidance. Leveraging the Gemini API, MediMitra aims to offer a friendly and professional experience to users seeking health-related information.
 
-## Getting Started
+## Features
 
-This project is a starting point for a Flutter application.
+- **Personal Medical Assistant**: Provides general health information and guidance.
+- **Markdown Support**: Displays responses with Markdown formatting, allowing for rich text content.
+- **Multi-language Support**: Available in English and Hindi.
+- **Session Management**: Users can start new sessions and clear chat history.
+- **User-Friendly Interface**: Intuitive and easy-to-navigate UI.
 
-A few resources to get you started if this is your first Flutter project:
+## Technologies Used
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- **Flutter**: For building the mobile application.
+- **Gemini API**: To power the chatbot functionality.
+- **Provider**: For state management.
+- **Flutter Markdown**: To render Markdown formatted text.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/yourusername/medimitra.git
