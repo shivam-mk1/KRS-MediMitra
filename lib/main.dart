@@ -332,7 +332,7 @@ class MedicalAssistant extends ChangeNotifier {
   }
 
   Future<void> _initializeChat() async {
-    const apiKey = 'AIzaSyDUIiNwHt5Is97neUnn1NZGi7QCBjJTO2s';
+    final apiKey = '';
     _model = GenerativeModel(
       model: 'gemini-1.5-flash',
       apiKey: apiKey,
