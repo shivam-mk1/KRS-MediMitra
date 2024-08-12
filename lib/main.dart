@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => MedicalAssistant(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -24,6 +30,7 @@ class MyApp extends StatelessWidget {
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
+
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
@@ -39,12 +46,7 @@ class _SplashScreenState extends State<SplashScreen> {
     await Future.delayed(const Duration(seconds: 5), () {});
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(
-        builder: (context) => ChangeNotifierProvider(
-          create: (_) => MedicalAssistant(),
-          child: const MyHomePage(),
-        ),
-      ),
+      MaterialPageRoute(builder: (context) => const MyHomePage()),
     );
   }
 
@@ -61,13 +63,35 @@ class _SplashScreenState extends State<SplashScreen> {
               height: 100,
             ),
             const SizedBox(height: 20),
-            const Text(
-              'MediMitra',
-              style: TextStyle(
+            Text(
+              Provider.of<MedicalAssistant>(context).language == 'hi'
+                  ? 'मेडीमित्र'
+                  : 'MediMitra',
+              style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: Colors.green,
               ),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'by KRS App Dev Team',
+                  style: TextStyle(color: Colors.black54),
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+                Image(
+                  image: AssetImage('assets/KRS.jpg'),
+                  width: 20,
+                  height: 20,
+                )
+              ],
             ),
           ],
         ),
@@ -78,6 +102,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
+
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
@@ -94,135 +119,173 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
     final medicalAssistant = Provider.of<MedicalAssistant>(context);
-    return ChangeNotifierProvider(
-      create: (context) => MedicalAssistant(),
-      child: Scaffold(
-        drawer: Drawer(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 40, 0, 0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Row(
-                  children: [
-                    Image(
-                      image: AssetImage('assets/bot.png'),
-                      width: 50,
-                      height: 50,
+    return Scaffold(
+      drawer: Drawer(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 40, 0, 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Row(
+                children: [
+                  Image(
+                    image: AssetImage('assets/bot.png'),
+                    width: 50,
+                    height: 50,
+                  ),
+                  SizedBox(width: 10),
+                  Text(
+                    'MediMitra',
+                    style: TextStyle(
+                      color: Colors.green,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w900,
                     ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Text(
-                      'MediMitra',
-                      style: TextStyle(
-                          color: Colors.lightGreen,
-                          fontSize: 24,
-                          fontWeight: FontWeight.w900),
-                    ),
-                    SizedBox(
-                      width: 30,
-                    ),
-                    Image(
-                      image: AssetImage('assets/KRS.jpg'),
-                      width: 55,
-                      height: 55,
-                    )
-                  ],
-                ),
-                const SizedBox(
-                  height: 30,
-                ),
-                InkWell(
-                  onTap: () {
-                    clearChatHistory(context);
-                  },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 30),
+              InkWell(
+                onTap: () {
+                  clearChatHistory(context);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 10),
                   child: Container(
                     decoration: BoxDecoration(
-                        color: Colors.lightGreen,
-                        borderRadius: BorderRadius.circular(8)),
-                    width: 250,
+                      color: Colors.green,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
                     child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          Icons.add,
-                          color: Colors.white,
-                          size: 44,
-                        ),
+                        Icon(Icons.add, color: Colors.white, size: 20),
+                        SizedBox(width: 8),
                         Text(
                           'New Session',
                           style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w700),
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ],
                     ),
                   ),
                 ),
+              ),
+              const SizedBox(height: 20),
+              InkWell(
+                onTap: () {
+                  changeLanguage(context);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.green,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.language, color: Colors.white, size: 20),
+                        SizedBox(width: 8),
+                        Text(
+                          medicalAssistant.language == 'hi'
+                              ? 'Change Language to English'
+                              : 'Change Language to Hindi',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const Spacer(),
+              Padding(
+                padding: const EdgeInsets.only(top: 20, right: 10, bottom: 20),
+                child: Container(
+                  width: double.infinity,
+                  child: Text(
+                    'Disclaimer : Medimitra provides general health information and is not a substitute for professional medical advice, diagnosis, or treatment. Always consult a qualified healthcare provider with any questions regarding medical conditions or treatments.',
+                    style: TextStyle(
+                        color: Colors.black87, fontWeight: FontWeight.w500),
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+      appBar: AppBar(
+        backgroundColor: Colors.green,
+        title: Text(
+          medicalAssistant.language == 'hi' ? 'मेडीमित्र' : 'MediMitra',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900),
+        ),
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              controller: _scrollController,
+              itemCount: medicalAssistant.messages.length,
+              itemBuilder: (context, index) {
+                final message = medicalAssistant.messages[index];
+                return MessageBubble(
+                  text: message.text,
+                  isUserMessage: message.isUserMessage,
+                );
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _textController,
+                    decoration: InputDecoration(
+                      hintText: medicalAssistant.language == 'hi'
+                          ? 'यहाँ अपना सवाल टाइप करें...'
+                          : 'Type your question here...',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                    ),
+                    onSubmitted: (text) {
+                      _sendMessage(text, medicalAssistant);
+                    },
+                  ),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: () {
+                    _sendMessage(_textController.text, medicalAssistant);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                  ),
+                  child: Text(
+                    medicalAssistant.language == 'hi' ? 'भेजें' : 'Send',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
               ],
             ),
           ),
-        ),
-        appBar: AppBar(
-          backgroundColor: Colors.lightGreen,
-          title: const Text(
-            'MediMitra',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900),
-          ),
-          iconTheme: const IconThemeData(color: Colors.white),
-        ),
-        body: Column(
-          children: [
-            Expanded(
-              child: ListView.builder(
-                controller: _scrollController,
-                itemCount: medicalAssistant.messages.length,
-                itemBuilder: (context, index) {
-                  final message = medicalAssistant.messages[index];
-                  return MessageBubble(
-                    text: message.text,
-                    isUserMessage: message.isUserMessage,
-                  );
-                },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _textController,
-                      decoration: InputDecoration(
-                        hintText: 'Type your question here...',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                      ),
-                      onSubmitted: (text) {
-                        _sendMessage(text, medicalAssistant);
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: () {
-                      _sendMessage(_textController.text, medicalAssistant);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.lightGreen,
-                    ),
-                    child: const Text(
-                      'Send',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+        ],
       ),
     );
   }
@@ -236,7 +299,15 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void clearChatHistory(BuildContext context) {
-    Provider.of<MedicalAssistant>(context, listen: false).clearChatHistory(context);
+    Provider.of<MedicalAssistant>(context, listen: false)
+        .clearChatHistory(context);
+  }
+
+  void changeLanguage(BuildContext context) {
+    final medicalAssistant =
+        Provider.of<MedicalAssistant>(context, listen: false);
+    String newLanguage = medicalAssistant.language == 'hi' ? 'en' : 'hi';
+    medicalAssistant.setLanguage(newLanguage);
   }
 }
 
@@ -245,6 +316,8 @@ class MedicalAssistant extends ChangeNotifier {
   late GenerativeModel _model;
   late ChatSession _chatSession;
   bool _isChatInitialized = false;
+  String _language = 'en';
+
   void clearChatHistory(context) {
     messages.clear();
     notifyListeners();
@@ -252,6 +325,7 @@ class MedicalAssistant extends ChangeNotifier {
   }
 
   List<ChatMessage> get messages => _messages;
+  String get language => _language;
 
   MedicalAssistant() {
     _initializeChat();
@@ -266,9 +340,14 @@ class MedicalAssistant extends ChangeNotifier {
     );
 
     _chatSession = _model.startChat(history: [
-      Content.text(
-          'Hello, I am your medical assistant. How can I help you today?'),
-      Content.model([TextPart('Hi there! What would you like to ask?')])
+      Content.text(_language == 'hi'
+          ? 'नमस्ते, मैं आपका मेडिकल सहायक हूँ। मैं आपकी कैसे मदद कर सकता हूँ?'
+          : 'Hello, I am your medical assistant. How can I help you today?'),
+      Content.model([
+        TextPart(_language == 'hi'
+            ? 'नमस्ते! आप क्या पूछना चाहेंगे?'
+            : 'Hi there! What would you like to ask?'),
+      ])
     ]);
 
     _isChatInitialized = true;
@@ -279,9 +358,11 @@ class MedicalAssistant extends ChangeNotifier {
     if (!_isChatInitialized) {
       await _initializeChat();
     }
-//prompt engineering karna hai bas, wo toh ata hi hai na
-    final prompt =
-        'Imagine you are a nice friendly medical assistant, try to sound as professional as possible and reply back to the following: $text . Do not say you cannot give medical advice or recommend any third party when it comes to medical questions. You can ignore non medical questions.';
+
+    final prompt = _language == 'hi'
+        ? 'कल्पना कीजिए कि आप एक अच्छे दोस्ताना चिकित्सा सहायक हैं, जितना संभव हो सके पेशेवर तरीके से जवाब दें: $text। कृपया यह न कहें कि आप चिकित्सा सलाह नहीं दे सकते हैं या चिकित्सा सवालों के लिए किसी तृतीय पक्ष की सिफारिश नहीं कर सकते हैं। आप गैर-चिकित्सा सवालों को नजरअंदाज कर सकते हैं।'
+        : 'Imagine you are a nice friendly medical assistant, try to sound as professional as possible and reply back to the following: $text. Do not say you cannot give medical advice or recommend any third party when it comes to medical questions. You can ignore non-medical questions.';
+
     var content = Content.text(prompt);
 
     try {
@@ -295,6 +376,11 @@ class MedicalAssistant extends ChangeNotifier {
   void addMessage(String text, bool isUserMessage) {
     _messages.add(ChatMessage(text, isUserMessage));
     notifyListeners();
+  }
+
+  void setLanguage(String language) {
+    _language = language;
+    _initializeChat();
   }
 }
 
@@ -326,10 +412,12 @@ class MessageBubble extends StatelessWidget {
           color: isUserMessage ? Colors.green : Colors.grey[300],
           borderRadius: BorderRadius.circular(8.0),
         ),
-        child: Text(
-          text,
-          style: TextStyle(
-            color: isUserMessage ? Colors.white : Colors.black,
+        child: MarkdownBody(
+          data: text,
+          styleSheet: MarkdownStyleSheet(
+            p: TextStyle(
+              color: isUserMessage ? Colors.white : Colors.black,
+            ),
           ),
         ),
       ),
