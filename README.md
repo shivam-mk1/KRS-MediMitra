@@ -16,9 +16,3 @@ MediMitra is a personal medical assistant chatbot built using Flutter. It provid
 - **Gemini API**: To power the chatbot functionality.
 - **Provider**: For state management.
 - **Flutter Markdown**: To render Markdown formatted text.
-
-## Installation
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/yourusername/medimitra.git
